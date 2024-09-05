@@ -1,0 +1,32 @@
+local Player = game.Players.LocalPlayer
+local Character = Player.Character
+local Humanoid = Character.Humanoid
+local UserInputService = game:GetService("UserInputService")
+local mouse = Player:GetMouse()
+local Key = 'T'
+
+UserInputService.InputBegan:Connect(function(input, IsTyping)
+    if IsTyping then return end
+    if input.KeyCode == Enum.KeyCode[Key] then
+        local args = {
+            [1] = {
+                [1] = {
+                    [1] = mouse.Hit.p,
+                    [2] = mouse.Hit.p,
+                    [3] = "Anodite",
+                    ["n"] = 3
+                },
+                [2] = "\25",
+                [3] = {
+                    [1] = mouse.Hit.p,
+                    [2] = true,
+                    ["n"] = 2
+                },
+                [4] = "\6"
+            }
+        }
+
+        local Event = game:GetService("ReplicatedStorage"):WaitForChild("dataRemoteEvent")
+        Event:FireServer(unpack(args))
+    end
+end)
