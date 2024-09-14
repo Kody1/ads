@@ -1,0 +1,117 @@
+-- Toggle state
+local toggle = false
+local originalProperties = {} -- Table to store original properties of parts
+
+-- Set up the User Input Service
+local UIS = game:GetService("UserInputService")
+local player = game.Players.LocalPlayer
+local humanoid = player.Character.Humanoid
+
+-- Function to check if a part or any of its descendants has a TouchInterest
+local function hasTouchInterest(part)
+    if part:FindFirstChild("TouchInterest") then
+        return true
+    end
+    for _, descendant in pairs(part:GetDescendants()) do
+        if descendant:IsA("TouchInterest") then
+            return true
+        end
+    end
+    return false
+end
+
+-- Function to highlight parts based on the presence of a TouchInterest
+local function highlightGlassPanes()
+    local glassBridge = game:GetService("Workspace"):FindFirstChild("GlassBridge")
+    if not glassBridge then return end
+
+    local bridge = glassBridge:FindFirstChild("Bridge")
+    if not bridge then return end
+
+    for _, part in pairs(bridge:GetDescendants()) do
+        if part:IsA("Part") then
+            -- Save original properties when toggled on
+            if not originalProperties[part] then
+                originalProperties[part] = {
+                    BrickColor = part.BrickColor,
+                    Material = part.Material
+                }
+            end
+
+            -- Highlight based on TouchInterest
+            if hasTouchInterest(part) then
+                part.BrickColor = BrickColor.new("Bright red")
+                part.Material = Enum.Material.SmoothPlastic
+            else
+                part.BrickColor = BrickColor.new("Bright green")
+                part.Material = Enum.Material.SmoothPlastic
+            end
+        end
+    end
+end
+
+-- Function to revert parts back to their original properties
+local function revertGlassPanes()
+    local glassBridge = game:GetService("Workspace"):FindFirstChild("GlassBridge")
+    if not glassBridge then return end
+
+    local bridge = glassBridge:FindFirstChild("Bridge")
+    if not bridge then return end
+
+    for _, part in pairs(bridge:GetDescendants()) do
+        if part:IsA("Part") and originalProperties[part] then
+            part.BrickColor = originalProperties[part].BrickColor
+            part.Material = originalProperties[part].Material
+        end
+    end
+end
+
+-- Function to toggle WalkSpeed, JumpPower, and the auto-update of highlighting
+local function toggleFunctionality()
+    if toggle then
+        humanoid.WalkSpeed = 16 -- Default WalkSpeed
+        humanoid.JumpPower = 50 -- Default JumpPower
+        revertGlassPanes() -- Revert colors when toggling off
+    else
+        humanoid.WalkSpeed = 18.9
+        humanoid.JumpPower = 56.1
+        highlightGlassPanes() -- Apply highlights when toggling on
+    end
+    toggle = not toggle
+end
+
+-- Auto-update highlightGlassPanes only when the toggle is ON
+spawn(function()
+    while true do
+        if toggle then
+            highlightGlassPanes()
+        end
+        wait(10) -- Update every 10 seconds
+    end
+end)
+
+-- Bind "Z" key to toggle the function
+UIS.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.Z then
+        toggleFunctionality()
+    end
+end)
+
+-- Function to toggle visibility of 50 players
+local function toggleVisibility()
+    local players = game:GetService("Players"):GetPlayers()
+    for i = 1, 50 do
+        if players[i] and players[i] ~= player then
+            players[i].Character.HumanoidRootPart.Transparency = toggle and 0 or 1
+            players[i].Character.HumanoidRootPart.CanCollide = not toggle
+        end
+    end
+    toggle = not toggle
+end
+
+-- Bind "X" key to toggle visibility
+UIS.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.X then
+        toggleVisibility()
+    end
+end)
