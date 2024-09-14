@@ -1,0 +1,50 @@
+-- Define services and player
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local camera = workspace.CurrentCamera
+
+-- Function to reset the camera
+local function resetCamera()
+    camera.CameraSubject = character:WaitForChild("Humanoid")
+    camera.CameraType = Enum.CameraType.Custom
+    camera.CFrame = character.Head.CFrame
+end
+
+-- Event-based approach to reset the camera
+character.Humanoid.Died:Connect(resetCamera)
+
+-- Define the arguments for the remote event
+local args = {
+    [1] = {
+        [1] = {
+            [1] = "ZatProm",
+            ["n"] = 1
+        },
+        [2] = "\11"
+    }
+}
+
+-- Function to fire the event 35 times
+local function fireEvent()
+    for i = 1, 35 do
+        ReplicatedStorage.dataRemoteEvent:FireServer(unpack(args))
+    end
+end
+
+-- Connect the function to the CharacterRemoving event
+player.CharacterRemoving:Connect(fireEvent)
+
+-- Function to check and destroy instances
+local function checkAndDestroy(instanceName)
+    local instance = Lighting:FindFirstChild(instanceName)
+    if instance then
+        instance:Destroy()
+    end
+end
+
+-- Check and destroy ColorDeath and BlurDeath
+checkAndDestroy("ColorDeath")
+checkAndDestroy("BlurDeath")
