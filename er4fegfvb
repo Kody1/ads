@@ -1,0 +1,112 @@
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local dataRemoteEvent = ReplicatedStorage:WaitForChild("dataRemoteEvent")
+local Players = game:GetService("Players")
+
+local function getNearestLimb(targetPosition)
+    local closestPlayer = nil
+    local shortestDistance = math.huge
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= Players.LocalPlayer then
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local distance = (character.HumanoidRootPart.Position - targetPosition).Magnitude
+                if distance < shortestDistance then
+                    closestPlayer = player
+                    shortestDistance = distance
+                end
+            end
+        end
+    end
+
+    if closestPlayer and closestPlayer.Character and closestPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        return closestPlayer.Character.HumanoidRootPart.CFrame.Position
+    else
+        return targetPosition
+    end
+end
+
+local function fireRemotes(targetPosition)
+    local nearestLimb = getNearestLimb(targetPosition)
+
+    local args1 = {
+        [1] = {
+            [1] = {
+                [1] = nearestLimb,
+                [2] = Vector3.new(0.6878641247749329, -0.5887270569801331, 0.42455074191093445),
+                [3] = "BlastGiant",
+                ["n"] = 3
+            },
+            [2] = "\25",
+            [3] = {
+                [1] = nearestLimb,
+                [2] = false,
+                ["n"] = 2
+            },
+            [4] = "\6"
+        }
+    }
+
+    local args2 = {
+        [1] = {
+            [1] = {
+                [1] = "Blast",
+                ["n"] = 1
+            },
+            [2] = "\28",
+            [3] = {
+                [1] = targetPosition,
+                [2] = Vector3.new(-0.7336209416389465, -0.01720673032104969, 0.6793410778045654),
+                [3] = "Blast",
+                ["n"] = 3
+            },
+            [4] = "\25",
+            [5] = {
+                [1] = Vector3.new(-0.7336209416389465, -0.01720673032104969, 0.6793410778045654),
+                [2] = false,
+                ["n"] = 2
+            },
+            [6] = "\6"
+        }
+    }
+
+    local args3 = {
+        [1] = {
+            [1] = {
+                [1] = targetPosition,
+                [2] = Vector3.new(-0.7336209416389465, -0.01720673032104969, 0.6793410778045654),
+                [3] = "Anodite",
+                ["n"] = 3
+            },
+            [2] = "\25",
+            [3] = {
+                [1] = targetPosition,
+                [2] = true,
+                ["n"] = 2
+            },
+            [4] = "\6"
+        }
+    }
+
+    dataRemoteEvent:FireServer(unpack(args1))
+    dataRemoteEvent:FireServer(unpack(args2))
+    dataRemoteEvent:FireServer(unpack(args3))
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 and not gameProcessed then
+        local mouse = Players.LocalPlayer:GetMouse()
+        local targetPosition = mouse.Hit.p
+        fireRemotes(targetPosition)
+    end
+end)
+
+local args = {
+    [1] = "Z",
+    [2] = true,
+    [3] = "CurrentAbility",
+    [4] = Vector3.new(456.4059753417969, -43.9212532043457, 207.69192504882812)
+}
+
+game:GetService("ReplicatedStorage").Knit.Services.AbilityService.RF.AbilityRequest:InvokeServer(unpack(args))
