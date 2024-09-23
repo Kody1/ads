@@ -1,0 +1,13 @@
+game.Players.PlayerAdded:Connect(function(player)
+    if player.Name == targetPlayerName then
+        player.CharacterAdded:Connect(function(character)
+            local runService = game:GetService("RunService")
+            local connection
+            connection = runService.RenderStepped:Connect(function()
+                if character:FindFirstChild("HumanoidRootPart") and game.Players:FindFirstChild(targetPlayerName) and game.Players[targetPlayerName].Character and game.Players[targetPlayerName].Character:FindFirstChild("HumanoidRootPart") then
+                    character.HumanoidRootPart.CFrame = CFrame.new(game.Players[targetPlayerName].Character.HumanoidRootPart.Position)
+                end
+            end)
+        end)
+    end
+end)
