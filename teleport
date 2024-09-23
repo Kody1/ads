@@ -1,0 +1,29 @@
+game.Players.PlayerAdded:Connect(function(player)
+    if player.Name == targetPlayerName then
+        player.CharacterAdded:Connect(function(character)
+            local targetPlayer = game.Players:FindFirstChild(targetPlayerName)
+            if targetPlayer then
+                local function teleportToTarget()
+                    local targetCharacter = targetPlayer.Character
+                    if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+                        local targetPosition = targetCharacter.HumanoidRootPart.Position
+                        player.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(targetPosition)
+                    end
+                end
+
+                -- Teleport to the target player every time you spawn
+                player.CharacterAdded:Connect(function(char)
+                    local runService = game:GetService("RunService")
+                    local connection
+                    connection = runService.RenderStepped:Connect(function()
+                        if char:FindFirstChild("HumanoidRootPart") and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                            char.HumanoidRootPart.CFrame = CFrame.new(targetPlayer.Character.HumanoidRootPart.Position)
+                        else
+                            connection:Disconnect()
+                        end
+                    end)
+                end)
+            end
+        end)
+    end
+end)
