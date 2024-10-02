@@ -97,21 +97,3 @@ UIS.InputBegan:Connect(function(input)
     end
 end)
 
--- Function to toggle visibility of 50 players
-local function toggleVisibility()
-    local players = game:GetService("Players"):GetPlayers()
-    for i = 1, 50 do
-        if players[i] and players[i] ~= player then
-            players[i].Character.HumanoidRootPart.Transparency = toggle and 0 or 1
-            players[i].Character.HumanoidRootPart.CanCollide = not toggle
-        end
-    end
-    toggle = not toggle
-end
-
--- Bind "X" key to toggle visibility
-UIS.InputBegan:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.X then
-        toggleVisibility()
-    end
-end)
